@@ -15,7 +15,7 @@ fi
 
 install_option_brand() {
     brand_config=$(
-        whiptail --title "Brand Selection" --menu "Which brand will this NVR be deployed to?" 16 60 4 \
+        whiptail --backtitle "VisionPro NVR First Boot Script - October 2023" --title "Brand Selection" --menu "Which brand will this NVR be deployed to?" 16 60 4 \
         "AF" "Anytime Fitness" \
         "WTC" "Waxing the City" \
         "BCF" "Basecamp Fitness" \
@@ -129,7 +129,31 @@ software_install() {
 }
 
 do_ipmi_config() {
-    
+    # -user add: when adding a user, follow -user add <id of user> username password <permissions level>. 4 = Admin, 3 = Operator
+
+    ipmicfg -hostname "NVR-IPMI"
+    ipmicfg -user setpwd 2 Pr0v@dmin#1!
+
+    ipmicfg -user add 3 pvss M@sterM1nd123 4
+    ipmicfg -user add 4 installer techs1988 2
+
+    # ipmicfg -m 192.168.5.245
+    # ipmicfg -k 255.255.255.0
+    # ipmicfg -g 192.168.5.1
+
+}
+
+do_harden_tasks() {
+    apt-get update
+    apt-get upgrade -y
+
+    apt purge -y telnet cups modemanager whoopsie zeitgeist-core zeitgeist-datahub
+
+
+}
+
+do_cleanup() {
+
 }
 
 #Execution Steps
@@ -137,7 +161,7 @@ scriptinfo
 install_option_brand
 install_option_staticip
 install_option_ipmi
-#set_hostname
+set_hostname
 #brand_convert
 #enable_autologin
 #software_install
