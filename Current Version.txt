@@ -1,0 +1,22 @@
+2022 June 2
+Changelog
+
+Updated Wired connection 1 section to change connection priorities
+
+2022 May 10
+Changelog
+
+Recreated Network Configuration portion
+Corrected and streamlined issues regarding configuration names and settings
+
+2022 May 5
+Changelog
+
+Removed Network configuration to return to manual configuration
+
+2022 April 11
+Changelog
+
+Updated for DW Spectrum 4.2 - 64 bit
+Updated Networking Section to correctly address Networks 1 and 2
+Updated Networking Section to correctly rename Network 1 to Inside and Network 2 to CCTV
