@@ -8,7 +8,8 @@ checksudo(){
 if [ "$(id -nu)" != "root" ]; then
     sudo -k
     pass=$(whiptail --backtitle "$brand Installer" --title "Authentication required" --passwordbox "Installing $brand requires administrative privilege. Please authenticate to begin the installation.\n\n[sudo] Password for user $USER:" 12 50 3>&2 2>&1 1>&3-)
-    exec sudo -S -p '' "$0" "$@" <<< "$pass"
+    exit
+    exec sudo -S -p /home/log/asdf.sh
 fi
 }
 
@@ -109,6 +110,8 @@ enable_autologin() {
 }
 
 software_install() {
+    # Install Required Packages
+    apt install -y libminizip1 cifs-utils net-tools
     output "Installing version 5 of DW Spectrum Server and Client. Please wait..."
     wget https://updates.digital-watchdog.com/digitalwatchdog/37133/linux/dwspectrum-server-5.1.0.37133-linux_x64.deb -O /tmp/dwspectrum-server.deb
     wget https://updates.digital-watchdog.com/digitalwatchdog/37133/linux/dwspectrum-client-5.1.0.37133-linux_x64.deb -O /tmp/dwspectrum-client.deb
@@ -123,6 +126,10 @@ software_install() {
     dpkg -i /tmp/tv-host.deb
     apt-get install -f
     rm -rf /tmp/tv-host.deb
+}
+
+do_ipmi_config() {
+    
 }
 
 #Execution Steps
