@@ -87,12 +87,12 @@ brand_convert() {
     fi
  
     if [ "$brand_config" = "WTC" ] || [ "$brand_config" = "BCF" ] || [ "$brand_config" = "TBM" ]; then
-        pkill -u club pid
-        pkill -9 -u club
-        sleep 10
+        # Probably not needed, transfered from old script. pkill -u club pid
+        # Probably not needed, transfered from old script. pkill -9 -u club
+        # Probably not needed, transfered from old script. sleep 10
         sudo usermod -l studio club
-        sudo usermod -d /home/studio -m studio
-        sudo groupmod -n club studio
+        sudo usermod -d -m /home/studio studio
+        sudo groupmod -n studio club
         sudo chfn -f "studio" studio
     fi
 
@@ -135,7 +135,7 @@ do_ipmi_config() {
     ipmicfg -user setpwd 2 Pr0v@dmin#1!
 
     ipmicfg -user add 3 pvss M@sterM1nd123 4
-    ipmicfg -user add 4 installer techs1988 2
+    ipmicfg -user add 4 installer techs1988 3
 
     ipmicfg -fru BPN "X12STH-F"
     ipmicfg -fru BP "X12STH-F"
