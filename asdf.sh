@@ -129,8 +129,6 @@ software_install() {
 do_ipmi_config() {
     # -user add: when adding a user, follow -user add <id of user> username password <permissions level>. 4 = Admin, 3 = Operator
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Configuring IPMI. Please wait..." 16 60
-
-    ipmicfg -dhcp on >> $pv_log
     
     ipmicfg -hostname "NVR-IPMI" >> $pv_log
     ipmicfg -user setpwd 2 "Pr0v@dmin#1!" >> $pv_log
@@ -138,12 +136,12 @@ do_ipmi_config() {
     ipmicfg -user add 3 pvss "M@sterM1nd123" 4 >> $pv_log
     ipmicfg -user add 4 installer "Techs1988" 3 >> $pv_log
 
-    ipmicfg -fru BPN "X12STH-F" >> $pv_log
-    ipmicfg -fru BP "X12STH-F" >> $pv_log
-    ipmicfg -fru PN "VisionPro Network Video Recorder" >> $pv_log
-    ipmicfg -fru PV "Generation 4" >> $pv_log
-    ipmicfg -fru "ProVision Distribution" >> $pv_log
-    ipmicfg -fru CT 05h >> $pv_log
+    #ipmicfg -fru BPN "X12STH-F" >> $pv_log
+    #ipmicfg -fru BP "X12STH-F" >> $pv_log
+    #ipmicfg -fru PN "VisionPro Network Video Recorder" >> $pv_log
+    #ipmicfg -fru PV "Generation 4" >> $pv_log
+    #ipmicfg -fru "ProVision Distribution" >> $pv_log
+    #ipmicfg -fru CT 05h >> $pv_log
 
     if [ "$netpackage_config" = "0" ] && [ "$staticip_config" = "0" ]; then
         ipmicfg -dhcp off  >> $pv_log
