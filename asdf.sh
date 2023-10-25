@@ -55,7 +55,7 @@ set_hostname() {
         brandhost="nvr1-tbm"
     fi
         
-    hostname=$(whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Configure Hostname" --inputbox "Enter desired hostname for this NVR:" 16 100 "$brandhost" 10 30 3>&1 1>&2 2>&3)
+    hostname=$(whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Configure Hostname" --inputbox "Enter desired hostname for this NVR:" 16 60 "$brandhost" 10 30 3>&1 1>&2 2>&3)
     exitstatus=$?
 
     if [ "$exitstatus" = "1" ]; then
@@ -96,7 +96,6 @@ brand_convert() {
     echo "$busername:$bpassword" | chpasswd >> $pv_log
 
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Configured device for $brand_config." 16 60
-    sleep 10
 }
 
 # Disabled auto login to fix keystore issue.
