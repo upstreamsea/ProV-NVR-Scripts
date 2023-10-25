@@ -253,5 +253,6 @@ install_option_ipmi
 brand_convert
 set_hostname
 software_install
+do_labtech_cw_automate
 do_net_config
 do_cleanup
