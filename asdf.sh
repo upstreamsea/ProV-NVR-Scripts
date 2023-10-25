@@ -87,10 +87,10 @@ brand_convert() {
     fi
  
     if [ "$brand_config" = "WTC" ] || [ "$brand_config" = "BCF" ] || [ "$brand_config" = "TBM" ]; then
-        sudo usermod -l studio club >> $pv_log
-        sudo usermod -d -m /home/studio studio >> $pv_log
-        sudo groupmod -n studio club >> $pv_log
-        sudo chfn -f "studio" studio >> $pv_log
+        usermod -l studio club >> $pv_log
+        usermod -d -m /home/studio studio >> $pv_log
+        groupmod -n studio club >> $pv_log
+        chfn -f "studio" studio >> $pv_log
     fi
 
     echo "$busername:$bpassword" | chpasswd >> $pv_log
@@ -110,21 +110,20 @@ brand_convert() {
 
 software_install() {
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Installing required software. Please wait..." 16 60
-    sudo apt install -y libminizip1 cifs-utils net-tools >> $pv_log
+    apt install -y libminizip1 cifs-utils net-tools >> $pv_log
     wget https://updates.digital-watchdog.com/digitalwatchdog/$dw_buildnumber/linux/$dw_serverpackage -O /tmp/dwspectrum-server.deb >> $pv_log
     wget https://updates.digital-watchdog.com/digitalwatchdog/$dw_buildnumber/linux/$dw_clientpackage -O /tmp/dwspectrum-client.deb >> $pv_log
-    sudo dpkg -i /tmp/dwspectrum-server.deb >> $pv_log
-    sudo apt-get install -f >> $pv_log
-    sudo dpkg -i /tmp/dwspectrum-server.deb >> $pv_log
-    sudo apt-get install -f >> $pv_log
+    dpkg -i /tmp/dwspectrum-server.deb >> $pv_log
+    apt-get install -f >> $pv_log
+    dpkg -i /tmp/dwspectrum-client.deb >> $pv_log
+    apt-get install -f >> $pv_log
 
     output "Installing TeamViewer Host v15. Please wait..."
     wget https://download.teamviewer.com/download/linux/teamviewer-host_amd64.deb -O /tmp/tv-host.deb
-    sudo dpkg -i /tmp/tv-host.deb
-    sudo apt-get install -f
+    dpkg -i /tmp/tv-host.deb
+    apt-get install -f
 
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Required software installed." 16 60
-    sleep 10
 }
 
 do_ipmi_config() {
@@ -156,7 +155,6 @@ do_ipmi_config() {
     ipmi_ip=$(ipmicfg -m)
     
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "IPMI configured. IPMI IP address is $ipmi_ip" 16 60
-    sleep 10
 }
 
 do_labtech_cw_automate() {
