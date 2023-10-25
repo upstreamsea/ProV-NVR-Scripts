@@ -88,7 +88,7 @@ brand_convert() {
  
     if [ "$brand_config" = "WTC" ] || [ "$brand_config" = "BCF" ] || [ "$brand_config" = "TBM" ]; then
         usermod -l studio club >> $pv_log
-        usermod -d -m /home/studio studio >> $pv_log
+        usermod -m -d /home/studio studio >> $pv_log
         groupmod -n studio club >> $pv_log
         chfn -f "studio" studio >> $pv_log
     fi
@@ -171,54 +171,50 @@ do_labtech_cw_automate() {
 do_net_config() {
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Configuring the network, please wait..." 16 60
     # Set variables for port configs.
-    eno1="INSIDE - Top"
-    eno2="CCTV - Bottom"
-    # Delete for reconfiguration
-    nmcli con del "Top Port"
-    nmcli con del "Bottom Port"
+    eno2="INSIDE"
+    eno1="CCTV"
 
-    # Recreate ethernet config
+    nmcli con del "eno1"
+    nmcli con del "eno2"
+
     nmcli con add type ethernet con-name "$eno1" ifname eno1
     nmcli con add type ethernet con-name "$eno2" ifname eno2
 
-    # Restart network manager
-    systemctl restart network-manager
-
     if [ "$netpackage_config" = "0" ] && [ "$staticip_config" = "0" ]; then
         # Configure device for our networking package.
-        nmcli con mod "$eno1" ipv4.addresses 172.16.100.3/24 >> $pv_log
-        nmcli con mod "$eno1" ipv4.gateway 172.16.100.1 >> $pv_log
-        nmcli con mod "$eno1" ipv4.never-default false >> $pv_log
-        nmcli con mod "$eno1" ipv4.dns "1.1.1.1 8.8.8.8" >> $pv_log
-        nmcli con mod "$eno1" ipv4.method manual >> $pv_log
-        nmcli con mod "$eno2" ipv4.addresses 172.16.200.3/24 >> $pv_log
-        nmcli con mod "$eno2" ipv4.never-default true >> $pv_log
+        nmcli con mod "$eno2" ipv4.addresses 172.16.100.3/24 >> $pv_log
+        nmcli con mod "$eno2" ipv4.gateway 172.16.100.1 >> $pv_log
+        nmcli con mod "$eno2" ipv4.never-default false >> $pv_log
+        nmcli con mod "$eno2" ipv4.dns "1.1.1.1 8.8.8.8" >> $pv_log
         nmcli con mod "$eno2" ipv4.method manual >> $pv_log
+        nmcli con mod "$eno1" ipv4.addresses 172.16.200.3/24 >> $pv_log
+        nmcli con mod "$eno1" ipv4.never-default true >> $pv_log
+        nmcli con mod "$eno1" ipv4.method manual >> $pv_log
     else
         # Configure devcie for DHCP
-        nmcli con mod "$eno1" ipv4.never-default false >> $pv_log
-        nmcli con mod "$eno1" ipv4.dns "1.1.1.1 8.8.8.8" >> $pv_log
-        nmcli con mod "$eno1" ipv4.method auto >> $pv_log
-        nmcli con mod "$eno2" ipv4.addresses 172.16.200.3/24 >> $pv_log
-        nmcli con mod "$eno2" ipv4.never-default true >> $pv_log
-        nmcli con mod "$eno2" ipv4.method manual >> $pv_log
+        nmcli con mod "$eno2" ipv4.never-default false >> $pv_log
+        nmcli con mod "$eno2" ipv4.dns "1.1.1.1 8.8.8.8" >> $pv_log
+        nmcli con mod "$eno2" ipv4.method auto >> $pv_log
+        nmcli con mod "$eno1" ipv4.addresses 172.16.200.3/24 >> $pv_log
+        nmcli con mod "$eno1" ipv4.never-default true >> $pv_log
+        nmcli con mod "$eno1" ipv4.method manual >> $pv_log
     fi
 
-    nmcli con mod "$eno1" ipv6.method ignore >> $pv_log
-    nmcli con mod "$eno1" connection.autoconnect-priority 3 >> $pv_log
-    nmcli con mod "$eno1" ipv4.dns-priority 3 >> $pv_log
-    nmcli con mod "$eno1" ipv6.dns-priority 3 >> $pv_log
-    nmcli con mod "$eno1" ipv4.route-metric 0 >> $pv_log
-    nmcli con mod "$eno1" ipv6.route-metric 0 >> $pv_log
-    nmcli con mod "$eno1" connection.autoconnect yes >> $pv_log
-
     nmcli con mod "$eno2" ipv6.method ignore >> $pv_log
-    nmcli con mod "$eno2" connection.autoconnect-priority 2 >> $pv_log
-    nmcli con mod "$eno2" ipv4.dns-priority 0 >> $pv_log
-    nmcli con mod "$eno2" ipv6.dns-priority 0 >> $pv_log
-    nmcli con mod "$eno2" ipv4.route-metric 10 >> $pv_log
-    nmcli con mod "$eno2" ipv6.route-metric 10 >> $pv_log
+    nmcli con mod "$eno2" connection.autoconnect-priority 3 >> $pv_log
+    nmcli con mod "$eno2" ipv4.dns-priority 3 >> $pv_log
+    nmcli con mod "$eno2" ipv6.dns-priority 3 >> $pv_log
+    nmcli con mod "$eno2" ipv4.route-metric 0 >> $pv_log
+    nmcli con mod "$eno2" ipv6.route-metric 0 >> $pv_log
     nmcli con mod "$eno2" connection.autoconnect yes >> $pv_log
+
+    nmcli con mod "$eno1" ipv6.method ignore >> $pv_log
+    nmcli con mod "$eno1" connection.autoconnect-priority 2 >> $pv_log
+    nmcli con mod "$eno1" ipv4.dns-priority 0 >> $pv_log
+    nmcli con mod "$eno1" ipv6.dns-priority 0 >> $pv_log
+    nmcli con mod "$eno1" ipv4.route-metric 10 >> $pv_log
+    nmcli con mod "$eno1" ipv6.route-metric 10 >> $pv_log
+    nmcli con mod "$eno1" connection.autoconnect yes >> $pv_log
 
     systemctl restart network-manager >> $pv_log
 
