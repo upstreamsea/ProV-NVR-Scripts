@@ -117,7 +117,6 @@ software_install() {
     dpkg -i /tmp/dwspectrum-client.deb >> $pv_log
     apt-get install -f >> $pv_log
 
-    output "Installing TeamViewer Host v15. Please wait..."
     wget https://download.teamviewer.com/download/linux/teamviewer-host_amd64.deb -O /tmp/tv-host.deb
     dpkg -i /tmp/tv-host.deb
     apt-get install -f
