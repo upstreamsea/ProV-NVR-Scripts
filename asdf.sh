@@ -70,7 +70,7 @@ set_hostname() {
 }
 
 brand_convert() {
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Brand Conversion" --gauge "Running brand conversion. Please wait..." 16 60 0
+    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Brand Conversion" --msgbox "Running brand conversion. Please wait..." 16 60
 
     if [ "$brand_config" = "AF" ]; then
         busername="club"
@@ -95,7 +95,7 @@ brand_convert() {
 
     echo "$busername:$bpassword" | chpasswd >> $pv_log
 
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --gauge "Configured device for $brand_config." 16 60 10
+    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Configured device for $brand_config." 16 60
     sleep 10
 }
 
@@ -109,7 +109,7 @@ brand_convert() {
 # }
 
 software_install() {
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --gauge "Installing required software. Please wait..." 16 60 20
+    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Installing required software. Please wait..." 16 60
     sudo apt install -y libminizip1 cifs-utils net-tools >> $pv_log
     wget https://updates.digital-watchdog.com/digitalwatchdog/$dw_buildnumber/linux/$dw_serverpackage -O /tmp/dwspectrum-server.deb >> $pv_log
     wget https://updates.digital-watchdog.com/digitalwatchdog/$dw_buildnumber/linux/$dw_clientpackage -O /tmp/dwspectrum-client.deb >> $pv_log
@@ -123,13 +123,13 @@ software_install() {
     sudo dpkg -i /tmp/tv-host.deb
     sudo apt-get install -f
 
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --gauge "Required software installed." 16 60 30
+    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Required software installed." 16 60
     sleep 10
 }
 
 do_ipmi_config() {
     # -user add: when adding a user, follow -user add <id of user> username password <permissions level>. 4 = Admin, 3 = Operator
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --gauge "Configuring IPMI. Please wait..." 16 60 40
+    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Configuring IPMI. Please wait..." 16 60
 
     ipmicfg -dhcp on >> $pv_log
     
@@ -155,23 +155,23 @@ do_ipmi_config() {
 
     ipmi_ip=$(ipmicfg -m)
     
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --gauge "IPMI configured. IPMI IP address is $ipmi_ip" 16 60 40
+    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "IPMI configured. IPMI IP address is $ipmi_ip" 16 60
     sleep 10
 }
 
 do_labtech_cw_automate() {
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --gauge "Installing LabTech, please wait..." 16 60 50
+    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Installing LabTech, please wait..." 16 60
 
     wget https://pvss.hostedrmm.com/LabTech/Deployment.aspx?InstallerToken=fd8bda930fac48dbad248bc6d83efbdb -O /tmp/labtech.zip >> $pv_log
     unzip /tmp/labtech.zip -r /tmp >> $pv_log
     cd /tmp/LTechAgent >> $pv_log
     sudo sh install.sh >> $pv_log
 
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "LabTech Install" --msgbox "LabTech has been installed.\n\nComputer name is $new_hostname" 16 60 60
+    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "LabTech Install" --msgbox "LabTech has been installed.\n\nComputer name is $new_hostname" 16 60
 }
 
 do_net_config() {
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --gauge "Configuring the network, please wait..." 16 60 70
+    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Configuring the network, please wait..." 16 60
     # Set variables for port configs.
     eno1="INSIDE - Top"
     eno2="CCTV - Bottom"
@@ -225,15 +225,12 @@ do_net_config() {
     systemctl restart network-manager >> $pv_log
 
     nmcli con show >> $pv_log
-
-    ping "1.1.1.1" -c 8
-    ping "google-public-dns-a.google.com" -c 8
     
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --gauge "Network has been configured." 16 60 80
+    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Network has been configured." 16 60
 }
 
 do_cleanup() {
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --gauge "Cleaning up. Please wait..." 16 60 90
+    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Cleaning up. Please wait..." 16 60
 
     rm /tmp/labtech.zip >> $pv_log
     rm -rf /tmp/LTech* >> $pv_log
@@ -255,8 +252,8 @@ install_option_brand
 install_option_netpackage
 install_option_staticip
 install_option_ipmi
-do_net_config
-set_hostname
 brand_convert
+set_hostname
 software_install
+do_net_config
 do_cleanup
