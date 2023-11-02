@@ -44,6 +44,11 @@ install_option_ipmi() {
     ipmi_config=$?
 }
 
+make_log_file() {
+    touch /tmp/provfirstboot.txt
+    chmod 0777 /tmp/provfirstboot.txt
+}
+
 set_hostname() {
     if [ "$brand_config" = "AF" ]; then
         brandhost="nvr1-af"
@@ -70,8 +75,6 @@ set_hostname() {
 }
 
 brand_convert() {
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Brand Conversion" --msgbox "Running brand conversion. Please wait..." 16 60
-
     if [ "$brand_config" = "AF" ]; then
         busername="club"
         bpassword="Anytime\$123"
@@ -134,12 +137,12 @@ do_ipmi_config() {
     ipmicfg -user add 3 pvss "M@sterM1nd123" 4 >> $pv_log
     ipmicfg -user add 4 installer "Techs1988" 3 >> $pv_log
 
-    #ipmicfg -fru BPN "X12STH-F" >> $pv_log
-    #ipmicfg -fru BP "X12STH-F" >> $pv_log
-    #ipmicfg -fru PN "VisionPro Network Video Recorder" >> $pv_log
-    #ipmicfg -fru PV "Generation 4" >> $pv_log
-    #ipmicfg -fru "ProVision Distribution" >> $pv_log
-    #ipmicfg -fru CT 05h >> $pv_log
+    ipmicfg -fru BPN "X12STH-F" >> $pv_log
+    ipmicfg -fru BP "X12STH-F" >> $pv_log
+    ipmicfg -fru PN "VisionPro Network Video Recorder" >> $pv_log
+    ipmicfg -fru PV "Generation 4" >> $pv_log
+    ipmicfg -fru "ProVision Distribution" >> $pv_log
+    ipmicfg -fru CT 05h >> $pv_log
 
     if [ "$netpackage_config" = "0" ] && [ "$staticip_config" = "0" ]; then
         ipmicfg -dhcp off  >> $pv_log
@@ -156,10 +159,7 @@ do_ipmi_config() {
 do_labtech_cw_automate() {
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Installing LabTech, please wait..." 16 60
 
-    wget https://pvss.hostedrmm.com/LabTech/Deployment.aspx?InstallerToken=fd8bda930fac48dbad248bc6d83efbdb -O /tmp/labtech.zip >> $pv_log
-    unzip /tmp/labtech.zip -r /tmp >> $pv_log
-    cd /tmp/LTechAgent >> $pv_log
-    sudo sh install.sh >> $pv_log
+    sudo sh /home/pvss/install.sh >> $pv_log
 
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "LabTech Install" --msgbox "LabTech has been installed.\n\nComputer name is $new_hostname" 16 60
 }
@@ -222,13 +222,11 @@ do_net_config() {
 do_cleanup() {
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Cleaning up. Please wait..." 16 60
 
-    rm /tmp/labtech.zip >> $pv_log
-    rm -rf /tmp/LTech* >> $pv_log
+    rm /home/pvss/install.sh >> $pv_log
     rm /tmp/tv-host.deb >> $pv_log
     rm /tmp/dwspectrum* >> $pv_log
-    rm /home/pvss/Desktop/first-boot.desktop >> $pv_log
+    rm /home/pvss/Desktop/firstboot.desktop >> $pv_log
     rm /home/pvss/firstboot.sh >> $pv_log
-    rm /home/pvss/firstboot-update.sh >> $pv_log
 
     apt update  >> $pv_log
     apt upgrade -y  >> $pv_log
@@ -238,6 +236,7 @@ do_cleanup() {
 }
 
 #Execution Steps
+make_log_file
 install_option_brand
 install_option_netpackage
 install_option_staticip
