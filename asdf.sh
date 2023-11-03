@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pv_log="/tmp/provfirstboot.txt"
+pv_log="/home/pvss/provfirstboot.txt"
 version="1.0 - October 2023"
 dw_buildnumber="37512"
 dw_clientpackage="dwspectrum-client-5.1.1.37512-linux_x64.deb"
@@ -42,11 +42,6 @@ install_option_ipmi() {
         )
     fi
     ipmi_config=$?
-}
-
-make_log_file() {
-    touch /tmp/provfirstboot.txt
-    chmod 0777 /tmp/provfirstboot.txt
 }
 
 set_hostname() {
@@ -112,7 +107,6 @@ brand_convert() {
 
 software_install() {
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Installing required software. Please wait..." 16 60
-    apt install -y libminizip1 cifs-utils net-tools >> $pv_log
     wget https://updates.digital-watchdog.com/digitalwatchdog/$dw_buildnumber/linux/$dw_serverpackage -O /tmp/dwspectrum-server.deb >> $pv_log
     wget https://updates.digital-watchdog.com/digitalwatchdog/$dw_buildnumber/linux/$dw_clientpackage -O /tmp/dwspectrum-client.deb >> $pv_log
     dpkg -i /tmp/dwspectrum-server.deb >> $pv_log
@@ -157,9 +151,9 @@ do_ipmi_config() {
 }
 
 do_labtech_cw_automate() {
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Installing LabTech, please wait..." 16 60
-
+    cd /home/pvss/labtech >> $pv_log
     sudo sh /home/pvss/install.sh >> $pv_log
+    cd /home/pvss
 
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "LabTech Install" --msgbox "LabTech has been installed.\n\nComputer name is $new_hostname" 16 60
 }
@@ -236,7 +230,6 @@ do_cleanup() {
 }
 
 #Execution Steps
-make_log_file
 install_option_brand
 install_option_netpackage
 install_option_staticip
