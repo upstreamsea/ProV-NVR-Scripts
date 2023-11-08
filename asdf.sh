@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pv_log="/home/pvss/provfirstboot.txt"
+pv_log="/home/pvss/firstboot_log.txt"
 version="1.0 - October 2023"
 dw_buildnumber="37512"
 dw_clientpackage="dwspectrum-client-5.1.1.37512-linux_x64.deb"
@@ -93,17 +93,29 @@ brand_convert() {
 
     echo "$busername:$bpassword" | chpasswd >> $pv_log
 
+    # Fix the Keyring 
+    if [ "$brand_config" = "WTC" ]; then
+        cd /home/studio/.login/share/keyrings
+        rm login.keyring
+        mv /home/pvss/keyrings/login-wtc.keyring login.keyring
+        chmod 600 login.keyring
+        chown studio:studio login.keyring
+    elif [ "$brand_config" = "BCF" ]; then
+        cd /home/studio/.login/share/keyrings
+        rm login.keyring
+        mv /home/pvss/keyrings/login-bcf.keyring login.keyring
+        chmod 600 login.keyring
+        chown studio:studio login.keyring
+    elif [ "$brand_config" = "TBM" ]; then
+        cd /home/studio/.login/share/keyrings
+        rm login.keyring
+        mv /home/pvss/keyrings/login-tbm.keyring login.keyring
+        chmod 600 login.keyring
+        chown studio:studio login.keyring
+    fi
+
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Configured device for $brand_config." 16 60
 }
-
-# Disabled auto login to fix keystore issue.
-# enable_autologin() {
-#     output "Enabling auto-login. Please wait..."
-# 
-#     sudo groupadd -r autologin
-#     sudo gpasswd -a $busername autologin
-#     sudo sed -i "s/pvss/$busername/g" /etc/lightdm/lightdm.conf
-# }
 
 software_install() {
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Installing required software. Please wait..." 16 60
@@ -151,18 +163,15 @@ do_ipmi_config() {
 }
 
 do_labtech_cw_automate() {
-    cd /home/pvss/labtech >> $pv_log
-    sudo sh /home/pvss/install.sh >> $pv_log
-    cd /home/pvss
+    sudo sh /home/pvss/labtech/install.sh >> $pv_log
 
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "LabTech Install" --msgbox "LabTech has been installed.\n\nComputer name is $new_hostname" 16 60
 }
 
 do_net_config() {
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Configuring the network, please wait..." 16 60
     # Set variables for port configs.
-    eno2="INSIDE"
-    eno1="CCTV"
+    eno1="INSIDE"
+    eno2="CCTV"
 
     nmcli con del "eno1"
     nmcli con del "eno2"
@@ -172,43 +181,42 @@ do_net_config() {
 
     if [ "$netpackage_config" = "0" ] && [ "$staticip_config" = "0" ]; then
         # Configure device for our networking package.
-        nmcli con mod "$eno2" ipv4.addresses 172.16.100.3/24 >> $pv_log
-        nmcli con mod "$eno2" ipv4.gateway 172.16.100.1 >> $pv_log
-        nmcli con mod "$eno2" ipv4.never-default false >> $pv_log
-        nmcli con mod "$eno2" ipv4.dns "1.1.1.1 8.8.8.8" >> $pv_log
-        nmcli con mod "$eno2" ipv4.method manual >> $pv_log
-        nmcli con mod "$eno1" ipv4.addresses 172.16.200.3/24 >> $pv_log
-        nmcli con mod "$eno1" ipv4.never-default true >> $pv_log
+        # INSIDE Network
+        nmcli con mod "$eno1" ipv4.addresses 172.16.100.3/24 >> $pv_log
+        nmcli con mod "$eno1" ipv4.gateway 172.16.100.1 >> $pv_log
+        nmcli con mod "$eno1" ipv4.never-default false >> $pv_log
+        nmcli con mod "$eno1" ipv4.dns "1.1.1.1 8.8.8.8" >> $pv_log
         nmcli con mod "$eno1" ipv4.method manual >> $pv_log
+        # CCTV Network
+        nmcli con mod "$eno2" ipv4.addresses 172.16.200.3/24 >> $pv_log
+        nmcli con mod "$eno2" ipv4.never-default true >> $pv_log
+        nmcli con mod "$eno2" ipv4.method manual >> $pv_log
     else
         # Configure devcie for DHCP
-        nmcli con mod "$eno2" ipv4.never-default false >> $pv_log
-        nmcli con mod "$eno2" ipv4.dns "1.1.1.1 8.8.8.8" >> $pv_log
-        nmcli con mod "$eno2" ipv4.method auto >> $pv_log
-        nmcli con mod "$eno1" ipv4.addresses 172.16.200.3/24 >> $pv_log
-        nmcli con mod "$eno1" ipv4.never-default true >> $pv_log
-        nmcli con mod "$eno1" ipv4.method manual >> $pv_log
+        nmcli con mod "$eno1" ipv4.never-default false >> $pv_log
+        nmcli con mod "$eno1" ipv4.dns "1.1.1.1 8.8.8.8" >> $pv_log
+        nmcli con mod "$eno1" ipv4.method auto >> $pv_log
+
+        nmcli con mod "$eno2" ipv4.addresses 172.16.200.3/24 >> $pv_log
+        nmcli con mod "$eno2" ipv4.never-default true >> $pv_log
+        nmcli con mod "$eno2" ipv4.method manual >> $pv_log
     fi
 
-    nmcli con mod "$eno2" ipv6.method ignore >> $pv_log
-    nmcli con mod "$eno2" connection.autoconnect-priority 3 >> $pv_log
-    nmcli con mod "$eno2" ipv4.dns-priority 3 >> $pv_log
-    nmcli con mod "$eno2" ipv6.dns-priority 3 >> $pv_log
-    nmcli con mod "$eno2" ipv4.route-metric 0 >> $pv_log
-    nmcli con mod "$eno2" ipv6.route-metric 0 >> $pv_log
-    nmcli con mod "$eno2" connection.autoconnect yes >> $pv_log
-
     nmcli con mod "$eno1" ipv6.method ignore >> $pv_log
-    nmcli con mod "$eno1" connection.autoconnect-priority 2 >> $pv_log
-    nmcli con mod "$eno1" ipv4.dns-priority 0 >> $pv_log
-    nmcli con mod "$eno1" ipv6.dns-priority 0 >> $pv_log
-    nmcli con mod "$eno1" ipv4.route-metric 10 >> $pv_log
-    nmcli con mod "$eno1" ipv6.route-metric 10 >> $pv_log
+    nmcli con mod "$eno1" connection.autoconnect-priority 3 >> $pv_log
+    nmcli con mod "$eno1" ipv4.dns-priority 3 >> $pv_log
+    nmcli con mod "$eno1" ipv6.dns-priority 3 >> $pv_log
+    nmcli con mod "$eno1" ipv4.route-metric 0 >> $pv_log
+    nmcli con mod "$eno1" ipv6.route-metric 0 >> $pv_log
     nmcli con mod "$eno1" connection.autoconnect yes >> $pv_log
 
-    systemctl restart network-manager >> $pv_log
-
-    nmcli con show >> $pv_log
+    nmcli con mod "$eno2" ipv6.method ignore >> $pv_log
+    nmcli con mod "$eno2" connection.autoconnect-priority 2 >> $pv_log
+    nmcli con mod "$eno2" ipv4.dns-priority 0 >> $pv_log
+    nmcli con mod "$eno2" ipv6.dns-priority 0 >> $pv_log
+    nmcli con mod "$eno2" ipv4.route-metric 10 >> $pv_log
+    nmcli con mod "$eno2" ipv6.route-metric 10 >> $pv_log
+    nmcli con mod "$eno2" connection.autoconnect yes >> $pv_log
     
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Network has been configured." 16 60
 }
@@ -216,15 +224,18 @@ do_net_config() {
 do_cleanup() {
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Cleaning up. Please wait..." 16 60
 
-    rm /home/pvss/install.sh >> $pv_log
     rm /tmp/tv-host.deb >> $pv_log
     rm /tmp/dwspectrum* >> $pv_log
     rm /home/pvss/Desktop/firstboot.desktop >> $pv_log
     rm /home/pvss/firstboot.sh >> $pv_log
+    rm /home/pvss/install.sh >> $pv_log
+    rm -rf /home/pvss/data >> $pv_log
+    rm /home/club/.local/share/keyrings/login-* >> $pv_log
 
     apt update  >> $pv_log
     apt upgrade -y  >> $pv_log
-    apt purge -y telnet cups modemmanager whoopsie zeitgeist-core zeitgeist-datahub rhythmbox-plugin-zeitgeist  >> $pv_log
+
+    chmod 0777 /home/pvss/firstboot_log.txt
 
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --ok-button "Next" --title "First Boot Script Complete" --msgbox "The first boot script has been completed." 16 60
 }
