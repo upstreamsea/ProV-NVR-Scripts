@@ -1,0 +1,3 @@
+cifs-utils
+net-tools
+libminizip1

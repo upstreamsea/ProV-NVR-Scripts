@@ -118,7 +118,6 @@ brand_convert() {
 }
 
 software_install() {
-    whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Installing required software. Please wait..." 16 60
     wget https://updates.digital-watchdog.com/digitalwatchdog/$dw_buildnumber/linux/$dw_serverpackage -O /tmp/dwspectrum-server.deb >> $pv_log
     wget https://updates.digital-watchdog.com/digitalwatchdog/$dw_buildnumber/linux/$dw_clientpackage -O /tmp/dwspectrum-client.deb >> $pv_log
     dpkg -i /tmp/dwspectrum-server.deb >> $pv_log
@@ -126,9 +125,9 @@ software_install() {
     dpkg -i /tmp/dwspectrum-client.deb >> $pv_log
     apt-get install -f >> $pv_log
 
-    wget https://download.teamviewer.com/download/linux/teamviewer-host_amd64.deb -O /tmp/tv-host.deb
-    dpkg -i /tmp/tv-host.deb
-    apt-get install -f
+    wget https://download.teamviewer.com/download/linux/teamviewer-host_amd64.deb -O /tmp/tv-host.deb >> $pv_log
+    dpkg -i /tmp/tv-host.deb >> $pv_log
+    apt-get install -f >> $pv_log
 
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Required software installed." 16 60
 }
@@ -217,6 +216,9 @@ do_net_config() {
     nmcli con mod "$eno2" ipv4.route-metric 10 >> $pv_log
     nmcli con mod "$eno2" ipv6.route-metric 10 >> $pv_log
     nmcli con mod "$eno2" connection.autoconnect yes >> $pv_log
+
+    nmcli con del "Wired connection 1" >> $pv_log
+    nmcli con del "Wired connection 2" >> $pv_log
     
     whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "Performing First Boot Script" --msgbox "Network has been configured." 16 60
 }
