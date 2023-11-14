@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pv_log="/home/pvss/firstboot_log.txt"
-version="1.0 - October 2023"
+version="1.0.1 - November 2023"
 dw_buildnumber="37512"
 dw_clientpackage="dwspectrum-client-5.1.1.37512-linux_x64.deb"
 dw_serverpackage="dwspectrum-server-5.1.1.37512-linux_x64.deb"
@@ -38,7 +38,7 @@ install_option_ipmi() {
         )
     else
         ipmi_config=$(
-            whiptail --backtitle "VisionPro NVR First Boot Script - $version"--title "IPMI Configuration" --yesno "Do you wish to configure the IPMI? This configures DHCP, the IPMI hostname, and users." 16 60 3>&2 2>&1 1>&3
+            whiptail --backtitle "VisionPro NVR First Boot Script - $version" --title "IPMI Configuration" --yesno "Do you wish to configure the IPMI? This configures DHCP, the IPMI hostname, and users." 16 60 3>&2 2>&1 1>&3
         )
     fi
     ipmi_config=$?
