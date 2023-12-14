@@ -1,7 +1,7 @@
 #!/bin/bash
 
 pv_log="/home/pvss/firstboot_log.txt"
-version="1.0.1 - November 2023"
+version="1.1.0 - December 2023"
 dw_buildnumber="37512"
 dw_clientpackage="dwspectrum-client-5.1.1.37512-linux_x64.deb"
 dw_serverpackage="dwspectrum-server-5.1.1.37512-linux_x64.deb"
